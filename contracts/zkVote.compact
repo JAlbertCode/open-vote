@@ -1,0 +1,94 @@
+pragma language_version >= 0.17;
+
+import CompactStandardLibrary;
+
+// -----------------------------
+// Ownership & structure
+// -----------------------------
+
+// Global poll counter (monotonically increases with each new poll).
+export ledger pollId: Counter;
+
+// Map of pollId → creator’s hashed identity.
+export ledger pollOwners: Map<Uint<64>, Field>;
+
+// Map of pollId → questionId → question text (stored as Field).
+export ledger questions:  Map<Uint<64>, Map<Uint<64>, Field>>;
+
+// Map of pollId → questionId → optionId → option text.
+export ledger options:    Map<Uint<64>, Map<Uint<64>, Map<Uint<64>, Field>>>;
+
+// -----------------------------
+
+// Tallies
+// -----------------------------
+
+// Map of pollId → questionId → optionId → number of votes received.
+export ledger optionCounts:   Map<Uint<64>, Map<Uint<64>, Map<Uint<64>, Counter>>>;
+
+// Map of pollId → questionId → total number of votes (handy for validation).
+export ledger questionTotals: Map<Uint<64>, Map<Uint<64>, Counter>>;
+
+// -----------------------------
+// Uniqueness tracking
+// -----------------------------
+
+// Tracks whether a user has already voted on a given poll/question.
+// Uses tag = PRF(secret, pollId, questionId).
+// pollId → questionId → userTag → number of votes (should normally be 0 or 1).
+export ledger userVoteCounts: Map<Uint<64>, Map<Uint<64>, Map<Field, Uint<32>>>>;
+
+// -----------------------------
+// Receipts & reward claims
+// -----------------------------
+
+// Stores cryptographic receipts for votes if needed.
+// pollId → questionId → userTag → proof/receipt.
+export ledger voteReceipts: Map<Uint<64>, Map<Uint<64>, Map<Field, Field>>>;
+
+// Tracks whether a user has already claimed a reward for voting.
+// Presence of a Unit value means “already claimed.”
+// pollId → questionId → userTag → claimed marker.
+export ledger rewardClaims: Map<Uint<64>, Map<Uint<64>, Map<Field, Boolean>>>;
+
+// -----------------------------
+// Witnesses
+// -----------------------------
+
+// Retrieve the caller’s local secret (unique to each wallet/device).
+witness getLocalSecret(): Bytes<32>;
+
+// Retrieve the caller’s shared secret (used for approvals/consent).
+witness getSharedSecret(): Bytes<32>;
+
+// -----------------------------
+// Circuits
+// -----------------------------
+
+// Create poll circuit: assigns a new pollId and records its owner.
+export circuit createPoll(): [] {
+    const creatorKey = ownPublicKey();
+
+    // Safety check: creator must not be empty.
+    assert (creatorKey != default<ZswapCoinPublicKey>, "Creator cannot be empty");
+
+    // Derive a hashed identity key for the creator using their public key
+    // and their private local secret, then disclose it.
+    const creatorHashKey = disclose(generateHashKey(creatorKey.bytes, getLocalSecret()));
+
+    // Increment global poll counter to generate new pollId.
+    pollId.increment(1);
+
+    // Store the poll owner’s identity hash against this pollId.
+    pollOwners.insert(pollId, creatorHashKey);
+}
+
+// -----------------------------
+// Helper circuits
+// -----------------------------
+
+// Generate a hashed identity key (pseudo-random identifier)
+// by hashing together two 32-byte values (typically pubkey and secret).
+export pure circuit generateHashKey(pK1: Bytes<32>, pK2: Bytes<32>): Field {
+    return transientHash<[Bytes<32>, Bytes<32>]>([pK1, pK2]);
+}

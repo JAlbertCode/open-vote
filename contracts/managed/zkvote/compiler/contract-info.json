@@ -1,0 +1,51 @@
+{
+  "circuits": [
+    {
+      "name": "createPoll",
+      "pure": false,
+      "arguments": [
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "generateHashKey",
+      "pure": true,
+      "arguments": [
+        {
+          "name": "pK1",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "pK2",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Field"
+      }
+    }
+  ],
+  "witnesses": [
+    {
+      "name": "getLocalSecret",
+      "arguments": [
+      ],
+      "result type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    }
+  ],
+  "contracts": [
+  ]
+}
