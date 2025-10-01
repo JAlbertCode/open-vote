@@ -16,6 +16,13 @@
       "pure": true,
       "arguments": [
         {
+          "name": "tag",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
           "name": "pK1",
           "type": {
             "type-name": "Bytes",
@@ -38,6 +45,13 @@
       "name": "generatePollIdHashKey",
       "pure": true,
       "arguments": [
+        {
+          "name": "tag",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
         {
           "name": "pK1",
           "type": {

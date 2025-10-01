@@ -9,16 +9,18 @@ export type ImpureCircuits<T> = {
 }
 
 export type PureCircuits = {
-  generateHashKey(pK1_0: Uint8Array, pK2_0: Uint8Array): bigint;
-  generatePollIdHashKey(pK1_0: bigint, pK2_0: Uint8Array): bigint;
+  generateHashKey(tag_0: Uint8Array, pK1_0: Uint8Array, pK2_0: Uint8Array): bigint;
+  generatePollIdHashKey(tag_0: Uint8Array, pK1_0: bigint, pK2_0: Uint8Array): bigint;
 }
 
 export type Circuits<T> = {
   createPoll(context: __compactRuntime.CircuitContext<T>): __compactRuntime.CircuitResults<T, []>;
   generateHashKey(context: __compactRuntime.CircuitContext<T>,
+                  tag_0: Uint8Array,
                   pK1_0: Uint8Array,
                   pK2_0: Uint8Array): __compactRuntime.CircuitResults<T, bigint>;
   generatePollIdHashKey(context: __compactRuntime.CircuitContext<T>,
+                        tag_0: Uint8Array,
                         pK1_0: bigint,
                         pK2_0: Uint8Array): __compactRuntime.CircuitResults<T, bigint>;
 }
