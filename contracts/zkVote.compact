@@ -78,6 +78,7 @@ export circuit createPoll(): [] {
 
     // Increment global poll counter to generate new pollId.
     pollId.increment(1);
+    const pollIdHash = disclose(generatePollIdHashKey(pollId, getLocalSecret()));
 
     // Store the poll owner’s identity hash against this pollId.
     pollOwners.insert(pollId, creatorHashKey);
@@ -91,4 +92,8 @@ export circuit createPoll(): [] {
 // by hashing together two 32-byte values (typically pubkey and secret).
 export pure circuit generateHashKey(pK1: Bytes<32>, pK2: Bytes<32>): Field {
     return transientHash<[Bytes<32>, Bytes<32>]>([pK1, pK2]);
+}
+
+export pure circuit generatePollIdHashKey(pK1: Uint<64>, pK2: Bytes<32>): Field {
+    return transientHash<[Uint<64>, Bytes<32>]>([pK1, pK2]);
 }

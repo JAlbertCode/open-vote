@@ -33,6 +33,29 @@
       "result-type": {
         "type-name": "Field"
       }
+    },
+    {
+      "name": "generatePollIdHashKey",
+      "pure": true,
+      "arguments": [
+        {
+          "name": "pK1",
+          "type": {
+            "type-name": "Uint",
+            "maxval": 18446744073709551615
+          }
+        },
+        {
+          "name": "pK2",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Field"
+      }
     }
   ],
   "witnesses": [

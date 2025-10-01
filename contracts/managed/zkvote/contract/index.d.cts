@@ -10,6 +10,7 @@ export type ImpureCircuits<T> = {
 
 export type PureCircuits = {
   generateHashKey(pK1_0: Uint8Array, pK2_0: Uint8Array): bigint;
+  generatePollIdHashKey(pK1_0: bigint, pK2_0: Uint8Array): bigint;
 }
 
 export type Circuits<T> = {
@@ -17,6 +18,9 @@ export type Circuits<T> = {
   generateHashKey(context: __compactRuntime.CircuitContext<T>,
                   pK1_0: Uint8Array,
                   pK2_0: Uint8Array): __compactRuntime.CircuitResults<T, bigint>;
+  generatePollIdHashKey(context: __compactRuntime.CircuitContext<T>,
+                        pK1_0: bigint,
+                        pK2_0: Uint8Array): __compactRuntime.CircuitResults<T, bigint>;
 }
 
 export type Ledger = {
