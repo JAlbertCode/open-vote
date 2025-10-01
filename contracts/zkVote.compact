@@ -10,13 +10,13 @@ import CompactStandardLibrary;
 export ledger pollId: Counter;
 
 // Map of pollId → creator’s hashed identity.
-export ledger pollOwners: Map<Uint<64>, Field>;
+export ledger pollOwners: Map<Field, Field>;
 
 // Map of pollId → questionId → question text (stored as Field).
-export ledger questions:  Map<Uint<64>, Map<Uint<64>, Field>>;
+export ledger questions:  Map<Field, Map<Uint<64>, Field>>;
 
 // Map of pollId → questionId → optionId → option text.
-export ledger options:    Map<Uint<64>, Map<Uint<64>, Map<Uint<64>, Field>>>;
+export ledger options:    Map<Field, Map<Uint<64>, Map<Uint<64>, Field>>>;
 
 // -----------------------------
 
@@ -82,16 +82,22 @@ export circuit createPoll(): [] {
     const pollIdHash = disclose(generatePollIdHashKey(tag, pollId, getLocalSecret()));
 
     // Store the poll owner’s identity hash against this pollId.
-    pollOwners.insert(pollId, creatorHashKey);
+    pollOwners.insert(pollIdHash, creatorHashKey);
 }
 
-// export circuit createQuestion(): [] {
+// export circuit createQuestion(pollId: Bytes<32>, question: Field): [] {
+//     const tag = pad(32, "new question");
 //     const creatorKey = ownPublicKey();
 
 //     assert(creatorKey != default<ZswapCoinPublicKey>, "Creator cannot be empty");
+//     assert(question != default<Field>, "Question cannot be empty");
 
-    
+//     const questionIdHash = disclose(generateQuestionIdHashKey(tag, question, pollId, getLocalSecret()));
 
+//     questions.insert(pollId, default<Map<Uint<64>, Field>>);
+
+//     // questions.insert(pollId, questionIdHash, question);
+// }
 
 
 
@@ -108,4 +114,8 @@ export pure circuit generateHashKey(tag: Bytes<32>, pK1: Bytes<32>, pK2: Bytes<3
 
 export pure circuit generatePollIdHashKey(tag: Bytes<32>, pK1: Uint<64>, pK2: Bytes<32>): Field {
     return transientHash<[Bytes<32>, Uint<64>, Bytes<32>]>([tag,pK1, pK2]);
+}
+
+export pure circuit generateQuestionIdHashKey(tag: Bytes<32>, question: Field, pK1: Bytes<32>, pK2: Bytes<32>): Field {
+    return transientHash<[Bytes<32>, Field, Bytes<32>, Bytes<32>]>([tag, question, pK1, pK2]);
 }

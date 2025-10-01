@@ -70,6 +70,42 @@
       "result-type": {
         "type-name": "Field"
       }
+    },
+    {
+      "name": "generateQuestionIdHashKey",
+      "pure": true,
+      "arguments": [
+        {
+          "name": "tag",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "question",
+          "type": {
+            "type-name": "Field"
+          }
+        },
+        {
+          "name": "pK1",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "pK2",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Field"
+      }
     }
   ],
   "witnesses": [
