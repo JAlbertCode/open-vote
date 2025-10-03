@@ -14,6 +14,7 @@ export ledger pollOwners: Map<Field, Field>;
 
 // Map of pollId → questionId → question text (stored as Field).
 export ledger questions:  Map<Field, Map<Field, Bytes<250>>>;
+export ledger questionsInPoll: Map<Field, Counter>;
 
 // Map of pollId → questionId → optionId → option text.
 export ledger options:    Map<Field, Map<Field, Map<Field, Bytes<100>>>>;
@@ -24,10 +25,10 @@ export ledger options:    Map<Field, Map<Field, Map<Field, Bytes<100>>>>;
 // -----------------------------
 
 // Map of pollId → questionId → optionId → number of votes received.
-export ledger optionCounts:   Map<Uint<64>, Map<Uint<64>, Map<Uint<64>, Counter>>>;
+export ledger optionVotesReceived:   Map<Uint<64>, Map<Uint<64>, Map<Uint<64>, Counter>>>;
 
 // Map of pollId → questionId → total number of votes (handy for validation).
-export ledger questionTotals: Map<Uint<64>, Map<Uint<64>, Counter>>;
+export ledger questionVotesRecieved: Map<Uint<64>, Map<Uint<64>, Counter>>;
 
 // -----------------------------
 // Uniqueness tracking
@@ -62,7 +63,7 @@ witness getLocalSecret(): Bytes<32>;
 witness getSharedSecret(): Bytes<32>;
 
 // -----------------------------
-// Circuits
+// Write Circuits
 // -----------------------------
 
 // Create poll circuit: assigns a new pollId and records its owner.
@@ -83,6 +84,8 @@ export circuit createPoll(): [] {
 
     // Store the poll owner’s identity hash against this pollId.
     pollOwners.insert(pollIdHash, creatorHashKey);
+    // Instantiating a spot for the first question.
+    questionsInPoll.insert(pollIdHash, default<Counter>);
 }
 
 export circuit createQuestion(pollIdHash: Field, question: Bytes<250>): [] {
@@ -100,6 +103,9 @@ export circuit createQuestion(pollIdHash: Field, question: Bytes<250>): [] {
     questions.insert(pubPollId, default<Map<Field, Bytes<250>>>);
     //Next look up the pollIdHash that we just inserted and insert the question hash and question text into the map.
     questions.lookup(pubPollId).insert(questionIdHash, disclose(question));
+    // Increase the counter for the questions in the poll
+    const questionCount = questionsInPoll.lookup(pollIdHash).read();
+    questionsInPoll.lookup(pollIdHash).increment(1);
 }
 
 export circuit createOption(pollIdHash: Field, questionIdHash: Field, option: Bytes<100>): [] {
@@ -115,6 +121,12 @@ export circuit createOption(pollIdHash: Field, questionIdHash: Field, option: By
     options.lookup(pollIdHash).lookup(questionIdHash).insert(optionIdHash, disclose(option));
 }
 
+// -----------------------------
+// Read Circuits
+// -----------------------------
+export circuit viewPoll(pollIdHash: Field): [] {
+
+}
 
 
 // -----------------------------

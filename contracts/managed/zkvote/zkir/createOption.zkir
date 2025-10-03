@@ -40,7 +40,7 @@
     { "op": "load_imm", "imm": "6E6577206F7074696F6E" },
     { "op": "transient_hash", "inputs": [9, 28, 2, 3, 4, 5, 1, 26, 27] },
     { "op": "load_imm", "imm": "72" },
-    { "op": "load_imm", "imm": "03" },
+    { "op": "load_imm", "imm": "04" },
     { "op": "load_imm", "imm": "-02" },
     { "op": "declare_pub_input", "var": 30 },
     { "op": "declare_pub_input", "var": 6 },

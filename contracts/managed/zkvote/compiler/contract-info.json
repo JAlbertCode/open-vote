@@ -66,6 +66,23 @@
       }
     },
     {
+      "name": "viewPoll",
+      "pure": true,
+      "arguments": [
+        {
+          "name": "pollIdHash",
+          "type": {
+            "type-name": "Field"
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
       "name": "generateHashKey",
       "pure": true,
       "arguments": [

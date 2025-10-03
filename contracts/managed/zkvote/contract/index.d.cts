@@ -16,6 +16,7 @@ export type ImpureCircuits<T> = {
 }
 
 export type PureCircuits = {
+  viewPoll(pollIdHash_0: bigint): [];
   generateHashKey(tag_0: Uint8Array, pK1_0: Uint8Array, pK2_0: Uint8Array): bigint;
   generatePollIdHashKey(tag_0: Uint8Array, pollId_0: bigint, pK1_0: Uint8Array): bigint;
   generateQuestionIdHashKey(tag_0: Uint8Array,
@@ -37,6 +38,7 @@ export type Circuits<T> = {
                pollIdHash_0: bigint,
                questionIdHash_0: bigint,
                option_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
+  viewPoll(context: __compactRuntime.CircuitContext<T>, pollIdHash_0: bigint): __compactRuntime.CircuitResults<T, []>;
   generateHashKey(context: __compactRuntime.CircuitContext<T>,
                   tag_0: Uint8Array,
                   pK1_0: Uint8Array,
@@ -78,6 +80,12 @@ export type Ledger = {
       [Symbol.iterator](): Iterator<[bigint, Uint8Array]>
     }
   };
+  questionsInPoll: {
+    isEmpty(): boolean;
+    size(): bigint;
+    member(key_0: bigint): boolean;
+    lookup(key_0: bigint): { read(): bigint }
+  };
   options: {
     isEmpty(): boolean;
     size(): bigint;
@@ -95,7 +103,7 @@ export type Ledger = {
       }
     }
   };
-  optionCounts: {
+  optionVotesReceived: {
     isEmpty(): boolean;
     size(): bigint;
     member(key_0: bigint): boolean;
@@ -111,7 +119,7 @@ export type Ledger = {
       }
     }
   };
-  questionTotals: {
+  questionVotesRecieved: {
     isEmpty(): boolean;
     size(): bigint;
     member(key_0: bigint): boolean;
