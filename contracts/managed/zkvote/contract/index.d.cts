@@ -6,32 +6,38 @@ export type Witnesses<T> = {
 
 export type ImpureCircuits<T> = {
   createPoll(context: __compactRuntime.CircuitContext<T>): __compactRuntime.CircuitResults<T, []>;
+  createQuestion(context: __compactRuntime.CircuitContext<T>,
+                 pollIdHash_0: bigint,
+                 question_0: bigint): __compactRuntime.CircuitResults<T, []>;
 }
 
 export type PureCircuits = {
   generateHashKey(tag_0: Uint8Array, pK1_0: Uint8Array, pK2_0: Uint8Array): bigint;
-  generatePollIdHashKey(tag_0: Uint8Array, pK1_0: bigint, pK2_0: Uint8Array): bigint;
+  generatePollIdHashKey(tag_0: Uint8Array, pollId_0: bigint, pK1_0: Uint8Array): bigint;
   generateQuestionIdHashKey(tag_0: Uint8Array,
                             question_0: bigint,
-                            pK1_0: Uint8Array,
-                            pK2_0: Uint8Array): bigint;
+                            pollIdHash_0: bigint,
+                            pK1_0: Uint8Array): bigint;
 }
 
 export type Circuits<T> = {
   createPoll(context: __compactRuntime.CircuitContext<T>): __compactRuntime.CircuitResults<T, []>;
+  createQuestion(context: __compactRuntime.CircuitContext<T>,
+                 pollIdHash_0: bigint,
+                 question_0: bigint): __compactRuntime.CircuitResults<T, []>;
   generateHashKey(context: __compactRuntime.CircuitContext<T>,
                   tag_0: Uint8Array,
                   pK1_0: Uint8Array,
                   pK2_0: Uint8Array): __compactRuntime.CircuitResults<T, bigint>;
   generatePollIdHashKey(context: __compactRuntime.CircuitContext<T>,
                         tag_0: Uint8Array,
-                        pK1_0: bigint,
-                        pK2_0: Uint8Array): __compactRuntime.CircuitResults<T, bigint>;
+                        pollId_0: bigint,
+                        pK1_0: Uint8Array): __compactRuntime.CircuitResults<T, bigint>;
   generateQuestionIdHashKey(context: __compactRuntime.CircuitContext<T>,
                             tag_0: Uint8Array,
                             question_0: bigint,
-                            pK1_0: Uint8Array,
-                            pK2_0: Uint8Array): __compactRuntime.CircuitResults<T, bigint>;
+                            pollIdHash_0: bigint,
+                            pK1_0: Uint8Array): __compactRuntime.CircuitResults<T, bigint>;
 }
 
 export type Ledger = {
