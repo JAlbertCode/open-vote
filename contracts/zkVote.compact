@@ -13,10 +13,10 @@ export ledger pollId: Counter;
 export ledger pollOwners: Map<Field, Field>;
 
 // Map of pollId → questionId → question text (stored as Field).
-export ledger questions:  Map<Field, Map<Field, Field>>;
+export ledger questions:  Map<Field, Map<Field, Bytes<250>>>;
 
 // Map of pollId → questionId → optionId → option text.
-export ledger options:    Map<Field, Map<Field, Map<Field, Field>>>;
+export ledger options:    Map<Field, Map<Field, Map<Field, Bytes<100>>>>;
 
 // -----------------------------
 
@@ -85,12 +85,12 @@ export circuit createPoll(): [] {
     pollOwners.insert(pollIdHash, creatorHashKey);
 }
 
-export circuit createQuestion(pollIdHash: Field, question: Field): [] {
+export circuit createQuestion(pollIdHash: Field, question: Bytes<250>): [] {
     const tag = pad(32, "new question");
     const creatorKey = ownPublicKey();
 
     assert(creatorKey != default<ZswapCoinPublicKey>, "Creator cannot be empty");
-    assert(question != default<Field>, "Question cannot be empty");
+    assert(question != default<Bytes<250>>, "Question cannot be empty");
 
     const questionIdHash = disclose(generateQuestionIdHashKey(tag, question, pollIdHash, getLocalSecret()));
 
@@ -98,6 +98,18 @@ export circuit createQuestion(pollIdHash: Field, question: Field): [] {
     questions.lookup(pollIdHash).insert(questionIdHash, disclose(question));
 }
 
+export circuit createOption(pollIdHash: Field, questionIdHash: Field, option: Bytes<100>): [] {
+    const tag = pad(32, "new option");
+    const creatorKey = ownPublicKey();
+    
+    assert(creatorKey != default<ZswapCoinPublicKey>, "Creator cannot be empty");
+    assert(pollIdHash != default<Field>, "Poll ID cannot be empty");
+    assert(questionIdHash != default<Field>, "Question ID cannot be empty");
+    assert(option != default<Bytes<100>>, "Option cannot be empty");
+    
+    const optionIdHash = disclose(generateOptionIdHashKey(tag, option, questionIdHash, getLocalSecret()));
+    options.lookup(pollIdHash).lookup(questionIdHash).insert(optionIdHash, disclose(option));
+}
 
 
 
@@ -115,6 +127,10 @@ export pure circuit generatePollIdHashKey(tag: Bytes<32>, pollId: Uint<64>, pK1:
     return transientHash<[Bytes<32>, Uint<64>, Bytes<32>]>([tag, pollId, pK1]);
 }
 
-export pure circuit generateQuestionIdHashKey(tag: Bytes<32>, question: Field, pollIdHash: Field, pK1: Bytes<32>): Field {
-    return transientHash<[Bytes<32>, Field, Field, Bytes<32>]>([tag, question, pollIdHash, pK1]);
+export pure circuit generateQuestionIdHashKey(tag: Bytes<32>, question: Bytes<250>, pollIdHash: Field, pK1: Bytes<32>): Field {
+    return transientHash<[Bytes<32>, Bytes<250>, Field, Bytes<32>]>([tag, question, pollIdHash, pK1]);
+}
+
+export pure circuit generateOptionIdHashKey(tag: Bytes<32>, option: Bytes<100>, questionIdHash: Field, pK1: Bytes<32>): Field {
+    return transientHash<[Bytes<32>, Bytes<100>, Field, Bytes<32>]>([tag, option, questionIdHash, pK1]);
 }

@@ -8,23 +8,35 @@ export type ImpureCircuits<T> = {
   createPoll(context: __compactRuntime.CircuitContext<T>): __compactRuntime.CircuitResults<T, []>;
   createQuestion(context: __compactRuntime.CircuitContext<T>,
                  pollIdHash_0: bigint,
-                 question_0: bigint): __compactRuntime.CircuitResults<T, []>;
+                 question_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
+  createOption(context: __compactRuntime.CircuitContext<T>,
+               pollIdHash_0: bigint,
+               questionIdHash_0: bigint,
+               option_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
 }
 
 export type PureCircuits = {
   generateHashKey(tag_0: Uint8Array, pK1_0: Uint8Array, pK2_0: Uint8Array): bigint;
   generatePollIdHashKey(tag_0: Uint8Array, pollId_0: bigint, pK1_0: Uint8Array): bigint;
   generateQuestionIdHashKey(tag_0: Uint8Array,
-                            question_0: bigint,
+                            question_0: Uint8Array,
                             pollIdHash_0: bigint,
                             pK1_0: Uint8Array): bigint;
+  generateOptionIdHashKey(tag_0: Uint8Array,
+                          option_0: Uint8Array,
+                          questionIdHash_0: bigint,
+                          pK1_0: Uint8Array): bigint;
 }
 
 export type Circuits<T> = {
   createPoll(context: __compactRuntime.CircuitContext<T>): __compactRuntime.CircuitResults<T, []>;
   createQuestion(context: __compactRuntime.CircuitContext<T>,
                  pollIdHash_0: bigint,
-                 question_0: bigint): __compactRuntime.CircuitResults<T, []>;
+                 question_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
+  createOption(context: __compactRuntime.CircuitContext<T>,
+               pollIdHash_0: bigint,
+               questionIdHash_0: bigint,
+               option_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
   generateHashKey(context: __compactRuntime.CircuitContext<T>,
                   tag_0: Uint8Array,
                   pK1_0: Uint8Array,
@@ -35,9 +47,14 @@ export type Circuits<T> = {
                         pK1_0: Uint8Array): __compactRuntime.CircuitResults<T, bigint>;
   generateQuestionIdHashKey(context: __compactRuntime.CircuitContext<T>,
                             tag_0: Uint8Array,
-                            question_0: bigint,
+                            question_0: Uint8Array,
                             pollIdHash_0: bigint,
                             pK1_0: Uint8Array): __compactRuntime.CircuitResults<T, bigint>;
+  generateOptionIdHashKey(context: __compactRuntime.CircuitContext<T>,
+                          tag_0: Uint8Array,
+                          option_0: Uint8Array,
+                          questionIdHash_0: bigint,
+                          pK1_0: Uint8Array): __compactRuntime.CircuitResults<T, bigint>;
 }
 
 export type Ledger = {
@@ -57,8 +74,8 @@ export type Ledger = {
       isEmpty(): boolean;
       size(): bigint;
       member(key_1: bigint): boolean;
-      lookup(key_1: bigint): bigint;
-      [Symbol.iterator](): Iterator<[bigint, bigint]>
+      lookup(key_1: bigint): Uint8Array;
+      [Symbol.iterator](): Iterator<[bigint, Uint8Array]>
     }
   };
   options: {
@@ -73,8 +90,8 @@ export type Ledger = {
         isEmpty(): boolean;
         size(): bigint;
         member(key_2: bigint): boolean;
-        lookup(key_2: bigint): bigint;
-        [Symbol.iterator](): Iterator<[bigint, bigint]>
+        lookup(key_2: bigint): Uint8Array;
+        [Symbol.iterator](): Iterator<[bigint, Uint8Array]>
       }
     }
   };

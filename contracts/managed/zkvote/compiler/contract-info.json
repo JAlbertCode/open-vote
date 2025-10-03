@@ -24,7 +24,38 @@
         {
           "name": "question",
           "type": {
+            "type-name": "Bytes",
+            "length": 250
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "createOption",
+      "pure": false,
+      "arguments": [
+        {
+          "name": "pollIdHash",
+          "type": {
             "type-name": "Field"
+          }
+        },
+        {
+          "name": "questionIdHash",
+          "type": {
+            "type-name": "Field"
+          }
+        },
+        {
+          "name": "option",
+          "type": {
+            "type-name": "Bytes",
+            "length": 100
           }
         }
       ],
@@ -108,11 +139,48 @@
         {
           "name": "question",
           "type": {
-            "type-name": "Field"
+            "type-name": "Bytes",
+            "length": 250
           }
         },
         {
           "name": "pollIdHash",
+          "type": {
+            "type-name": "Field"
+          }
+        },
+        {
+          "name": "pK1",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Field"
+      }
+    },
+    {
+      "name": "generateOptionIdHashKey",
+      "pure": true,
+      "arguments": [
+        {
+          "name": "tag",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "option",
+          "type": {
+            "type-name": "Bytes",
+            "length": 100
+          }
+        },
+        {
+          "name": "questionIdHash",
           "type": {
             "type-name": "Field"
           }
