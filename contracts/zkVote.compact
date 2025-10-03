@@ -18,6 +18,7 @@ export ledger questionsInPoll: Map<Field, Counter>;
 
 // Map of pollId → questionId → optionId → option text.
 export ledger options:    Map<Field, Map<Field, Map<Field, Bytes<100>>>>;
+export ledger optionsInQuestions: Map<Field, Counter>;
 
 // -----------------------------
 
@@ -119,6 +120,7 @@ export circuit createOption(pollIdHash: Field, questionIdHash: Field, option: By
     
     const optionIdHash = disclose(generateOptionIdHashKey(tag, option, questionIdHash, getLocalSecret()));
     options.lookup(pollIdHash).lookup(questionIdHash).insert(optionIdHash, disclose(option));
+    optionsInQuestions.lookup(questionIdHash).increment(1);
 }
 
 // -----------------------------

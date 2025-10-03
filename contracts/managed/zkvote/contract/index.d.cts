@@ -103,6 +103,12 @@ export type Ledger = {
       }
     }
   };
+  optionsInQuestions: {
+    isEmpty(): boolean;
+    size(): bigint;
+    member(key_0: bigint): boolean;
+    lookup(key_0: bigint): { read(): bigint }
+  };
   optionVotesReceived: {
     isEmpty(): boolean;
     size(): bigint;
