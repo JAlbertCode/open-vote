@@ -13,10 +13,11 @@ export type ImpureCircuits<T> = {
                pollIdHash_0: bigint,
                questionIdHash_0: bigint,
                option_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
+  questionCount(context: __compactRuntime.CircuitContext<T>,
+                pollIdHash_0: bigint): __compactRuntime.CircuitResults<T, bigint>;
 }
 
 export type PureCircuits = {
-  viewPoll(pollIdHash_0: bigint): [];
   generateHashKey(tag_0: Uint8Array, pK1_0: Uint8Array, pK2_0: Uint8Array): bigint;
   generatePollIdHashKey(tag_0: Uint8Array, pollId_0: bigint, pK1_0: Uint8Array): bigint;
   generateQuestionIdHashKey(tag_0: Uint8Array,
@@ -38,7 +39,8 @@ export type Circuits<T> = {
                pollIdHash_0: bigint,
                questionIdHash_0: bigint,
                option_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
-  viewPoll(context: __compactRuntime.CircuitContext<T>, pollIdHash_0: bigint): __compactRuntime.CircuitResults<T, []>;
+  questionCount(context: __compactRuntime.CircuitContext<T>,
+                pollIdHash_0: bigint): __compactRuntime.CircuitResults<T, bigint>;
   generateHashKey(context: __compactRuntime.CircuitContext<T>,
                   tag_0: Uint8Array,
                   pK1_0: Uint8Array,

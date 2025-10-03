@@ -276,8 +276,41 @@ class Contract {
         partialProofData.output = { value: [], alignment: [] };
         return { result: result_0, context: context, proofData: partialProofData };
       },
-      viewPoll(context, ...args_1) {
-        return { result: pureCircuits.viewPoll(...args_1), context };
+      questionCount: (...args_1) => {
+        if (args_1.length !== 2) {
+          throw new __compactRuntime.CompactError(`questionCount: expected 2 arguments (as invoked from Typescript), received ${args_1.length}`);
+        }
+        const contextOrig_0 = args_1[0];
+        const pollIdHash_0 = args_1[1];
+        if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.originalState != undefined && contextOrig_0.transactionContext != undefined)) {
+          __compactRuntime.type_error('questionCount',
+                                      'argument 1 (as invoked from Typescript)',
+                                      'zkVote.compact line 148 char 1',
+                                      'CircuitContext',
+                                      contextOrig_0)
+        }
+        if (!(typeof(pollIdHash_0) === 'bigint' && pollIdHash_0 >= 0 && pollIdHash_0 <= __compactRuntime.MAX_FIELD)) {
+          __compactRuntime.type_error('questionCount',
+                                      'argument 1 (argument 2 as invoked from Typescript)',
+                                      'zkVote.compact line 148 char 1',
+                                      'Field',
+                                      pollIdHash_0)
+        }
+        const context = { ...contextOrig_0 };
+        const partialProofData = {
+          input: {
+            value: _descriptor_2.toValue(pollIdHash_0),
+            alignment: _descriptor_2.alignment()
+          },
+          output: undefined,
+          publicTranscript: [],
+          privateTranscriptOutputs: []
+        };
+        const result_0 = this._questionCount_0(context,
+                                               partialProofData,
+                                               pollIdHash_0);
+        partialProofData.output = { value: _descriptor_4.toValue(result_0), alignment: _descriptor_4.alignment() };
+        return { result: result_0, context: context, proofData: partialProofData };
       },
       generateHashKey(context, ...args_1) {
         return { result: pureCircuits.generateHashKey(...args_1), context };
@@ -295,7 +328,8 @@ class Contract {
     this.impureCircuits = {
       createPoll: this.circuits.createPoll,
       createQuestion: this.circuits.createQuestion,
-      createOption: this.circuits.createOption
+      createOption: this.circuits.createOption,
+      questionCount: this.circuits.questionCount
     };
   }
   initialState(...args_0) {
@@ -332,6 +366,7 @@ class Contract {
     state_0.setOperation('createPoll', new __compactRuntime.ContractOperation());
     state_0.setOperation('createQuestion', new __compactRuntime.ContractOperation());
     state_0.setOperation('createOption', new __compactRuntime.ContractOperation());
+    state_0.setOperation('questionCount', new __compactRuntime.ContractOperation());
     const context = {
       originalState: state_0,
       currentPrivateState: constructorContext_0.initialPrivateState,
@@ -743,7 +778,24 @@ class Contract {
                      { ins: { cached: true, n: 2 } }]);
     return [];
   }
-  _viewPoll_0(pollIdHash_0) { return []; }
+  _questionCount_0(context, partialProofData, pollIdHash_0) {
+    const questionCount_0 = _descriptor_4.fromValue(Contract._query(context,
+                                                                    partialProofData,
+                                                                    [
+                                                                     { dup: { n: 0 } },
+                                                                     { idx: { cached: false,
+                                                                              pushPath: false,
+                                                                              path: [
+                                                                                     { tag: 'value',
+                                                                                       value: { value: _descriptor_14.toValue(3n),
+                                                                                                alignment: _descriptor_14.alignment() } },
+                                                                                     { tag: 'value',
+                                                                                       value: { value: _descriptor_2.toValue(pollIdHash_0),
+                                                                                                alignment: _descriptor_2.alignment() } }] } },
+                                                                     { popeq: { cached: true,
+                                                                                result: undefined } }]).value);
+    return questionCount_0;
+  }
   _generateHashKey_0(tag_0, pK1_0, pK2_0) {
     return this._transientHash_0([tag_0, pK1_0, pK2_0]);
   }
@@ -3205,20 +3257,6 @@ const _emptyContext = {
 };
 const _dummyContract = new Contract({ getLocalSecret: (...args) => undefined });
 const pureCircuits = {
-  viewPoll: (...args_0) => {
-    if (args_0.length !== 1) {
-      throw new __compactRuntime.CompactError(`viewPoll: expected 1 argument (as invoked from Typescript), received ${args_0.length}`);
-    }
-    const pollIdHash_0 = args_0[0];
-    if (!(typeof(pollIdHash_0) === 'bigint' && pollIdHash_0 >= 0 && pollIdHash_0 <= __compactRuntime.MAX_FIELD)) {
-      __compactRuntime.type_error('viewPoll',
-                                  'argument 1',
-                                  'zkVote.compact line 129 char 1',
-                                  'Field',
-                                  pollIdHash_0)
-    }
-    return _dummyContract._viewPoll_0(pollIdHash_0);
-  },
   generateHashKey: (...args_0) => {
     if (args_0.length !== 3) {
       throw new __compactRuntime.CompactError(`generateHashKey: expected 3 arguments (as invoked from Typescript), received ${args_0.length}`);
@@ -3229,21 +3267,21 @@ const pureCircuits = {
     if (!(tag_0.buffer instanceof ArrayBuffer && tag_0.BYTES_PER_ELEMENT === 1 && tag_0.length === 32)) {
       __compactRuntime.type_error('generateHashKey',
                                   'argument 1',
-                                  'zkVote.compact line 140 char 1',
+                                  'zkVote.compact line 160 char 1',
                                   'Bytes<32>',
                                   tag_0)
     }
     if (!(pK1_0.buffer instanceof ArrayBuffer && pK1_0.BYTES_PER_ELEMENT === 1 && pK1_0.length === 32)) {
       __compactRuntime.type_error('generateHashKey',
                                   'argument 2',
-                                  'zkVote.compact line 140 char 1',
+                                  'zkVote.compact line 160 char 1',
                                   'Bytes<32>',
                                   pK1_0)
     }
     if (!(pK2_0.buffer instanceof ArrayBuffer && pK2_0.BYTES_PER_ELEMENT === 1 && pK2_0.length === 32)) {
       __compactRuntime.type_error('generateHashKey',
                                   'argument 3',
-                                  'zkVote.compact line 140 char 1',
+                                  'zkVote.compact line 160 char 1',
                                   'Bytes<32>',
                                   pK2_0)
     }
@@ -3259,21 +3297,21 @@ const pureCircuits = {
     if (!(tag_0.buffer instanceof ArrayBuffer && tag_0.BYTES_PER_ELEMENT === 1 && tag_0.length === 32)) {
       __compactRuntime.type_error('generatePollIdHashKey',
                                   'argument 1',
-                                  'zkVote.compact line 144 char 1',
+                                  'zkVote.compact line 164 char 1',
                                   'Bytes<32>',
                                   tag_0)
     }
     if (!(typeof(pollId_0) === 'bigint' && pollId_0 >= 0n && pollId_0 <= 18446744073709551615n)) {
       __compactRuntime.type_error('generatePollIdHashKey',
                                   'argument 2',
-                                  'zkVote.compact line 144 char 1',
+                                  'zkVote.compact line 164 char 1',
                                   'Uint<0..18446744073709551615>',
                                   pollId_0)
     }
     if (!(pK1_0.buffer instanceof ArrayBuffer && pK1_0.BYTES_PER_ELEMENT === 1 && pK1_0.length === 32)) {
       __compactRuntime.type_error('generatePollIdHashKey',
                                   'argument 3',
-                                  'zkVote.compact line 144 char 1',
+                                  'zkVote.compact line 164 char 1',
                                   'Bytes<32>',
                                   pK1_0)
     }
@@ -3290,28 +3328,28 @@ const pureCircuits = {
     if (!(tag_0.buffer instanceof ArrayBuffer && tag_0.BYTES_PER_ELEMENT === 1 && tag_0.length === 32)) {
       __compactRuntime.type_error('generateQuestionIdHashKey',
                                   'argument 1',
-                                  'zkVote.compact line 148 char 1',
+                                  'zkVote.compact line 168 char 1',
                                   'Bytes<32>',
                                   tag_0)
     }
     if (!(question_0.buffer instanceof ArrayBuffer && question_0.BYTES_PER_ELEMENT === 1 && question_0.length === 250)) {
       __compactRuntime.type_error('generateQuestionIdHashKey',
                                   'argument 2',
-                                  'zkVote.compact line 148 char 1',
+                                  'zkVote.compact line 168 char 1',
                                   'Bytes<250>',
                                   question_0)
     }
     if (!(typeof(pollIdHash_0) === 'bigint' && pollIdHash_0 >= 0 && pollIdHash_0 <= __compactRuntime.MAX_FIELD)) {
       __compactRuntime.type_error('generateQuestionIdHashKey',
                                   'argument 3',
-                                  'zkVote.compact line 148 char 1',
+                                  'zkVote.compact line 168 char 1',
                                   'Field',
                                   pollIdHash_0)
     }
     if (!(pK1_0.buffer instanceof ArrayBuffer && pK1_0.BYTES_PER_ELEMENT === 1 && pK1_0.length === 32)) {
       __compactRuntime.type_error('generateQuestionIdHashKey',
                                   'argument 4',
-                                  'zkVote.compact line 148 char 1',
+                                  'zkVote.compact line 168 char 1',
                                   'Bytes<32>',
                                   pK1_0)
     }
@@ -3331,28 +3369,28 @@ const pureCircuits = {
     if (!(tag_0.buffer instanceof ArrayBuffer && tag_0.BYTES_PER_ELEMENT === 1 && tag_0.length === 32)) {
       __compactRuntime.type_error('generateOptionIdHashKey',
                                   'argument 1',
-                                  'zkVote.compact line 152 char 1',
+                                  'zkVote.compact line 172 char 1',
                                   'Bytes<32>',
                                   tag_0)
     }
     if (!(option_0.buffer instanceof ArrayBuffer && option_0.BYTES_PER_ELEMENT === 1 && option_0.length === 100)) {
       __compactRuntime.type_error('generateOptionIdHashKey',
                                   'argument 2',
-                                  'zkVote.compact line 152 char 1',
+                                  'zkVote.compact line 172 char 1',
                                   'Bytes<100>',
                                   option_0)
     }
     if (!(typeof(questionIdHash_0) === 'bigint' && questionIdHash_0 >= 0 && questionIdHash_0 <= __compactRuntime.MAX_FIELD)) {
       __compactRuntime.type_error('generateOptionIdHashKey',
                                   'argument 3',
-                                  'zkVote.compact line 152 char 1',
+                                  'zkVote.compact line 172 char 1',
                                   'Field',
                                   questionIdHash_0)
     }
     if (!(pK1_0.buffer instanceof ArrayBuffer && pK1_0.BYTES_PER_ELEMENT === 1 && pK1_0.length === 32)) {
       __compactRuntime.type_error('generateOptionIdHashKey',
                                   'argument 4',
-                                  'zkVote.compact line 152 char 1',
+                                  'zkVote.compact line 172 char 1',
                                   'Bytes<32>',
                                   pK1_0)
     }

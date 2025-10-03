@@ -126,8 +126,28 @@ export circuit createOption(pollIdHash: Field, questionIdHash: Field, option: By
 // -----------------------------
 // Read Circuits
 // -----------------------------
-export circuit viewPoll(pollIdHash: Field): [] {
 
+struct PollData {
+    pollIdHash: Field, 
+}
+
+struct QuestionData {
+    pollIdHash: Field,
+    questionIdHash: Field,
+    question: Bytes<250>
+}
+
+struct OptionData {
+    pollIdHash: Field,
+    questionIdHash: Field,
+    optionIdHash: Field,
+    option: Bytes<100>
+    
+}
+
+export circuit questionCount(pollIdHash: Field): Uint<64> {
+    const questionCount = questionsInPoll.lookup(pollIdHash).read();
+    return questionCount;
 }
 
 
