@@ -90,6 +90,7 @@ export circuit createQuestion(pollIdHash: Field, question: Bytes<250>): [] {
     const creatorKey = ownPublicKey();
 
     assert(creatorKey != default<ZswapCoinPublicKey>, "Creator cannot be empty");
+    assert(pollIdHash != default<Field>, "Poll ID cannot be empty");
     assert(question != default<Bytes<250>>, "Question cannot be empty");
 
     const questionIdHash = disclose(generateQuestionIdHashKey(tag, question, pollIdHash, getLocalSecret()));
