@@ -94,9 +94,12 @@ export circuit createQuestion(pollIdHash: Field, question: Bytes<250>): [] {
     assert(question != default<Bytes<250>>, "Question cannot be empty");
 
     const questionIdHash = disclose(generateQuestionIdHashKey(tag, question, pollIdHash, getLocalSecret()));
+    const pubPollId = disclose(pollIdHash);
 
-    // Need to insert the question into the nested hash
-    questions.lookup(pollIdHash).insert(questionIdHash, disclose(question));
+    //Insert questions into the ledger by first creating a record with the pollIdHash
+    questions.insert(pubPollId, default<Map<Field, Bytes<250>>>);
+    //Next look up the pollIdHash that we just inserted and insert the question hash and question text into the map.
+    questions.lookup(pubPollId).insert(questionIdHash, disclose(question));
 }
 
 export circuit createOption(pollIdHash: Field, questionIdHash: Field, option: Bytes<100>): [] {
