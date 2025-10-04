@@ -82,6 +82,22 @@
       }
     },
     {
+      "name": "questionRead",
+      "pure": true,
+      "arguments": [
+        {
+          "name": "pollIdHash",
+          "type": {
+            "type-name": "Field"
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Bytes",
+        "length": 250
+      }
+    },
+    {
       "name": "generateHashKey",
       "pure": true,
       "arguments": [
