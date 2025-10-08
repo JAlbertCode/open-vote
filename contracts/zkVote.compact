@@ -11,11 +11,13 @@ export ledger pollId: Counter;
 // Map of pollId → creator’s hashed identity.
 export ledger pollOwners: Map<Field, Field>;
 
-// Map of pollId → question list.
-export ledger questions:  Map<Field, List<Bytes<250>>>;
+// Map of pollId → questionId → question text (stored as Field).
+export ledger questions:  Map<Field, Map<Field, Bytes<250>>>;
+export ledger questionsInPoll: Map<Field, Counter>;
 
-// Map of pollId → questionId → option list
-export ledger options:    Map<Field, Map<Field, List<Bytes<100>>>>;
+// Map of pollId → questionId → optionId → option text.
+export ledger options:    Map<Field, Map<Field, Map<Field, Bytes<100>>>>;
+export ledger optionsInQuestions: Map<Field, Counter>;
 
 // Map of pollId → questionId → optionId → number of votes received.
 export ledger optionVotesReceived:   Map<Uint<64>, Map<Uint<64>, Map<Uint<64>, Counter>>>;
@@ -68,6 +70,8 @@ export circuit createPoll(): [] {
 
     // Store the poll owner’s identity hash against this pollId.
     pollOwners.insert(pollIdHash, creatorHashKey);
+    // Instantiating a spot for the first question.
+    questionsInPoll.insert(pollIdHash, default<Counter>);
 }
 
 export circuit createQuestion(pollIdHash: Field, question: Bytes<250>): [] {
@@ -81,13 +85,13 @@ export circuit createQuestion(pollIdHash: Field, question: Bytes<250>): [] {
     const questionIdHash = disclose(generateQuestionIdHashKey(tag, question, pollIdHash, getLocalSecret()));
     const pubPollId = disclose(pollIdHash);
 
-    // Initialize the list for this poll ID if it doesn't exist
-    if (!questions.member(pubPollId)) {
-    questions.insert(pubPollId, default<List<Bytes<250>>>);
-    }
-
-    // Insert the question into the list for this poll ID
-    questions.lookup(pubPollId).pushFront(disclose(question));
+    //Insert questions into the ledger by first creating a record with the pollIdHash
+    questions.insert(pubPollId, default<Map<Field, Bytes<250>>>);
+    //Next look up the pollIdHash that we just inserted and insert the question hash and question text into the map.
+    questions.lookup(pubPollId).insert(questionIdHash, disclose(question));
+    // Increase the counter for the questions in the poll
+    const questionCount = questionsInPoll.lookup(pollIdHash).read();
+    questionsInPoll.lookup(pollIdHash).increment(1);
 }
 
 export circuit createOption(pollIdHash: Field, questionIdHash: Field, option: Bytes<100>): [] {
@@ -99,10 +103,9 @@ export circuit createOption(pollIdHash: Field, questionIdHash: Field, option: By
     assert(questionIdHash != default<Field>, "Question ID cannot be empty");
     assert(option != default<Bytes<100>>, "Option cannot be empty");
     
-    const pubPollId = disclose(pollIdHash);
     const optionIdHash = disclose(generateOptionIdHashKey(tag, option, questionIdHash, getLocalSecret()));
-    
-    options.lookup(pollIdHash).lookup(questionIdHash).pushFront(disclose(option));
+    options.lookup(pollIdHash).lookup(questionIdHash).insert(optionIdHash, disclose(option));
+    optionsInQuestions.lookup(questionIdHash).increment(1);
 }
 
 // #endregion
@@ -130,17 +133,25 @@ struct OptionData {
 // #endregion
 
 // #region Read circuits
-
-// export circuit questionRead(pollIdHash: Field, questionCount: Uint<64>): Bytes<250> {
-//     assert (pollIdHash != default<Field>, "Poll Id cannot be empty");
-
-//     // const questionData = default<QuestionData>;
+export circuit questionCount(pollIdHash: Field): Uint<64> {
+    assert(pollIdHash != default<Field>, "Poll Id cannot be empty.");
     
-//     const questionData = questions.lookup(pollIdHash).lookup();
-//     // return questionData.question;
-//     return questionData;
+    const questionCount = questionsInPoll.lookup(pollIdHash).read();
+    
+    return questionCount;
+}
 
-// }
+export circuit questionRead(pollIdHash: Field): Bytes<250> {
+    assert (pollIdHash != default<Field>, "Poll Id cannot be empty");
+
+    const questionData = default<QuestionData>;
+
+    // questions.lookup(disclose(pollIdHash)).lookup(
+    
+    // )
+    return questionData.question;
+
+}
 
 // #endregion
 

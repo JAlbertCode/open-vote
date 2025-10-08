@@ -66,6 +66,38 @@
       }
     },
     {
+      "name": "questionCount",
+      "pure": false,
+      "arguments": [
+        {
+          "name": "pollIdHash",
+          "type": {
+            "type-name": "Field"
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Uint",
+        "maxval": 18446744073709551615
+      }
+    },
+    {
+      "name": "questionRead",
+      "pure": true,
+      "arguments": [
+        {
+          "name": "pollIdHash",
+          "type": {
+            "type-name": "Field"
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Bytes",
+        "length": 250
+      }
+    },
+    {
       "name": "generateHashKey",
       "pure": true,
       "arguments": [

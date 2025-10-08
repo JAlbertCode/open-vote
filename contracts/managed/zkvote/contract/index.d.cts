@@ -13,9 +13,12 @@ export type ImpureCircuits<T> = {
                pollIdHash_0: bigint,
                questionIdHash_0: bigint,
                option_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
+  questionCount(context: __compactRuntime.CircuitContext<T>,
+                pollIdHash_0: bigint): __compactRuntime.CircuitResults<T, bigint>;
 }
 
 export type PureCircuits = {
+  questionRead(pollIdHash_0: bigint): Uint8Array;
   generateHashKey(tag_0: Uint8Array, pK1_0: Uint8Array, pK2_0: Uint8Array): bigint;
   generatePollIdHashKey(tag_0: Uint8Array, pollId_0: bigint, pK1_0: Uint8Array): bigint;
   generateQuestionIdHashKey(tag_0: Uint8Array,
@@ -37,6 +40,9 @@ export type Circuits<T> = {
                pollIdHash_0: bigint,
                questionIdHash_0: bigint,
                option_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
+  questionCount(context: __compactRuntime.CircuitContext<T>,
+                pollIdHash_0: bigint): __compactRuntime.CircuitResults<T, bigint>;
+  questionRead(context: __compactRuntime.CircuitContext<T>, pollIdHash_0: bigint): __compactRuntime.CircuitResults<T, Uint8Array>;
   generateHashKey(context: __compactRuntime.CircuitContext<T>,
                   tag_0: Uint8Array,
                   pK1_0: Uint8Array,
@@ -72,10 +78,17 @@ export type Ledger = {
     member(key_0: bigint): boolean;
     lookup(key_0: bigint): {
       isEmpty(): boolean;
-      length(): bigint;
-      head(): { is_some: boolean, value: Uint8Array };
-      [Symbol.iterator](): Iterator<Uint8Array>
+      size(): bigint;
+      member(key_1: bigint): boolean;
+      lookup(key_1: bigint): Uint8Array;
+      [Symbol.iterator](): Iterator<[bigint, Uint8Array]>
     }
+  };
+  questionsInPoll: {
+    isEmpty(): boolean;
+    size(): bigint;
+    member(key_0: bigint): boolean;
+    lookup(key_0: bigint): { read(): bigint }
   };
   options: {
     isEmpty(): boolean;
@@ -87,11 +100,18 @@ export type Ledger = {
       member(key_1: bigint): boolean;
       lookup(key_1: bigint): {
         isEmpty(): boolean;
-        length(): bigint;
-        head(): { is_some: boolean, value: Uint8Array };
-        [Symbol.iterator](): Iterator<Uint8Array>
+        size(): bigint;
+        member(key_2: bigint): boolean;
+        lookup(key_2: bigint): Uint8Array;
+        [Symbol.iterator](): Iterator<[bigint, Uint8Array]>
       }
     }
+  };
+  optionsInQuestions: {
+    isEmpty(): boolean;
+    size(): bigint;
+    member(key_0: bigint): boolean;
+    lookup(key_0: bigint): { read(): bigint }
   };
   optionVotesReceived: {
     isEmpty(): boolean;
