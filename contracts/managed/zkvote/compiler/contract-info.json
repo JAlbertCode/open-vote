@@ -83,10 +83,16 @@
     },
     {
       "name": "questionRead",
-      "pure": true,
+      "pure": false,
       "arguments": [
         {
           "name": "pollIdHash",
+          "type": {
+            "type-name": "Field"
+          }
+        },
+        {
+          "name": "questionIdHash",
           "type": {
             "type-name": "Field"
           }

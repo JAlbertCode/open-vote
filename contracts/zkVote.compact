@@ -141,16 +141,11 @@ export circuit questionCount(pollIdHash: Field): Uint<64> {
     return questionCount;
 }
 
-export circuit questionRead(pollIdHash: Field): Bytes<250> {
+export circuit questionRead(pollIdHash: Field, questionIdHash: Field): Bytes<250> {
     assert (pollIdHash != default<Field>, "Poll Id cannot be empty");
 
-    const questionData = default<QuestionData>;
-
-    // questions.lookup(disclose(pollIdHash)).lookup(
-    
-    // )
-    return questionData.question;
-
+    const question = questions.lookup(disclose(pollIdHash)).lookup(disclose(questionIdHash));
+    return question;
 }
 
 // #endregion
