@@ -66,6 +66,35 @@
       }
     },
     {
+      "name": "submitVote",
+      "pure": false,
+      "arguments": [
+        {
+          "name": "pollIdHash",
+          "type": {
+            "type-name": "Field"
+          }
+        },
+        {
+          "name": "questionIdHash",
+          "type": {
+            "type-name": "Field"
+          }
+        },
+        {
+          "name": "optionIdHash",
+          "type": {
+            "type-name": "Field"
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
       "name": "questionCount",
       "pure": false,
       "arguments": [

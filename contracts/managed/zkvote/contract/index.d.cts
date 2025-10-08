@@ -13,6 +13,10 @@ export type ImpureCircuits<T> = {
                pollIdHash_0: bigint,
                questionIdHash_0: bigint,
                option_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
+  submitVote(context: __compactRuntime.CircuitContext<T>,
+             pollIdHash_0: bigint,
+             questionIdHash_0: bigint,
+             optionIdHash_0: bigint): __compactRuntime.CircuitResults<T, []>;
   questionCount(context: __compactRuntime.CircuitContext<T>,
                 pollIdHash_0: bigint): __compactRuntime.CircuitResults<T, bigint>;
   questionRead(context: __compactRuntime.CircuitContext<T>,
@@ -46,6 +50,10 @@ export type Circuits<T> = {
                pollIdHash_0: bigint,
                questionIdHash_0: bigint,
                option_0: Uint8Array): __compactRuntime.CircuitResults<T, []>;
+  submitVote(context: __compactRuntime.CircuitContext<T>,
+             pollIdHash_0: bigint,
+             questionIdHash_0: bigint,
+             optionIdHash_0: bigint): __compactRuntime.CircuitResults<T, []>;
   questionCount(context: __compactRuntime.CircuitContext<T>,
                 pollIdHash_0: bigint): __compactRuntime.CircuitResults<T, bigint>;
   questionRead(context: __compactRuntime.CircuitContext<T>,

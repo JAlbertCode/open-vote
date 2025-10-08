@@ -20,10 +20,10 @@ export ledger options:    Map<Field, Map<Field, Map<Field, Bytes<100>>>>;
 export ledger optionsInQuestions: Map<Field, Counter>;
 
 // Map of pollId → questionId → optionId → number of votes received.
-export ledger optionVotesReceived:   Map<Uint<64>, Map<Uint<64>, Map<Uint<64>, Counter>>>;
+export ledger optionVotesReceived:   Map<Field, Map<Field, Map<Field, Counter>>>;
 
 // Map of pollId → questionId → total number of votes (handy for validation).
-export ledger questionVotesRecieved: Map<Uint<64>, Map<Uint<64>, Counter>>;
+export ledger questionVotesRecieved: Map<Field, Map<Field, Counter>>;
 
 // Tracks whether a user has already voted on a given poll/question.
 // Uses tag = PRF(secret, pollId, questionId).
@@ -103,9 +103,24 @@ export circuit createOption(pollIdHash: Field, questionIdHash: Field, option: By
     assert(questionIdHash != default<Field>, "Question ID cannot be empty");
     assert(option != default<Bytes<100>>, "Option cannot be empty");
     
+    // Create the option Id.
     const optionIdHash = disclose(generateOptionIdHashKey(tag, option, questionIdHash, getLocalSecret()));
+    // Insert the option Id and the text of the option into the map.
     options.lookup(pollIdHash).lookup(questionIdHash).insert(optionIdHash, disclose(option));
+    // Increment the counter to document the question has another available option.
     optionsInQuestions.lookup(questionIdHash).increment(1);
+}
+
+export circuit submitVote(pollIdHash: Field, questionIdHash: Field, optionIdHash: Field): [] {
+    const tag = pad(32, "vote submitted");
+    const voterKey = ownPublicKey();
+
+    assert(voterKey != default<ZswapCoinPublicKey>, "Voter Id cannot be empty");
+
+    // Noting that another user answered this question.
+    questionVotesRecieved.lookup(disclose(pollIdHash)).lookup(disclose(questionIdHash)).increment(1);
+    // Noting that this option was selected for a specific poll and question.
+    optionVotesReceived.lookup(disclose(pollIdHash)).lookup(disclose(questionIdHash)).lookup(disclose(optionIdHash)).increment(1);
 }
 
 // #endregion
