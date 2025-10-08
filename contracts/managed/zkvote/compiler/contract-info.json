@@ -104,6 +104,34 @@
       }
     },
     {
+      "name": "optionRead",
+      "pure": false,
+      "arguments": [
+        {
+          "name": "pollIdHash",
+          "type": {
+            "type-name": "Field"
+          }
+        },
+        {
+          "name": "questionIdHash",
+          "type": {
+            "type-name": "Field"
+          }
+        },
+        {
+          "name": "optionIdHash",
+          "type": {
+            "type-name": "Field"
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Bytes",
+        "length": 100
+      }
+    },
+    {
       "name": "generateHashKey",
       "pure": true,
       "arguments": [

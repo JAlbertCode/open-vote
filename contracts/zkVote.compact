@@ -148,6 +148,15 @@ export circuit questionRead(pollIdHash: Field, questionIdHash: Field): Bytes<250
     return question;
 }
 
+export circuit optionRead(pollIdHash: Field, questionIdHash: Field, optionIdHash: Field): Bytes<100> {
+    assert (pollIdHash != default<Field>, "Poll Id cannot be empty");
+    assert (questionIdHash != default<Field>, "Question Id cannot be empty");
+    assert (optionIdHash != default<Field>, "Option Id cannot be empty");
+
+    const option = options.lookup(disclose(pollIdHash)).lookup(disclose(questionIdHash)).lookup(disclose(optionIdHash));
+    return option;
+}
+
 // #endregion
 
 // #region Helper Circuits
