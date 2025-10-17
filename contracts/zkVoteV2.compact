@@ -1,0 +1,128 @@
+pragma language_version >= 0.17;
+
+import CompactStandardLibrary;
+
+// #region Data structures for reading onchain data.
+
+export struct PollData {
+  owner: Field,                                 // same type you used in PollData
+  questions: Vector<50, QuestionRow>,
+  questionsLen: Uint<16>
+}
+
+export struct QuestionRow {
+  question: QuestionData,
+  options: Vector<6, OptionData>,
+  optionsLen: Uint<8>
+}
+
+struct QuestionData {
+    pollIdHash: Field,
+    questionIdHash: Field,
+    question: Bytes<250>
+}
+
+struct OptionData {
+    pollIdHash: Field,
+    questionIdHash: Field,
+    optionIdHash: Field,
+    option: Bytes<100>
+}
+
+// #endregion
+
+// #region Ledger States
+
+// Global poll counter for added randomization.
+export ledger pollId: Counter;
+
+// Map of pollId → creator’s hashed identity.
+export ledger pollOwners: Map<Field, Field>;
+
+// Map of PollId → PollData
+export ledger polls: Map<Field, PollData>;
+
+// Map of PollId → Counter of the total number of times a poll recieved a response for any question.
+export ledger pollVotes: Map<Field, Counter>;
+
+// Map of pollId → questionId → Counter of total number of times a question was answered.
+export ledger questionVotes: Map<Field, Map<Field, Counter>>;
+
+// Map of pollId → questionId → optionId → Counter of total number of times an option was chosen as an answer.
+export ledger optionVotes:   Map<Field, Map<Field, Map<Field, Counter>>>;
+
+// pollId → questionId → userHash → Boolean to check if a user voted on a particular question.
+export ledger userVoteCounts: Map<Field, Map<Field, Map<Field, Boolean>>>;
+
+// pollId → questionId → userHash → proof/receipt.
+export ledger voteReceipts: Map<Field, Map<Field, Map<Field, Field>>>;
+
+// Tracks whether a user has already claimed a reward for voting.
+// Presence of a Unit value means “already claimed.”
+// pollId → questionId → userHash → claimed marker.
+export ledger rewardClaims: Map<Field, Map<Field, Map<Field, Boolean>>>;
+
+// #endregion 
+
+// #endregion
+
+// #region Witnesses
+
+// Retrieve the caller’s local secret (unique to each wallet/device).
+witness getLocalSecret(): Bytes<32>;
+
+// Retrieve the caller’s shared secret (used for approvals/consent).
+witness getSharedSecret(): Bytes<32>;
+
+// #endregion
+
+
+// #region Write circuits
+// Create poll circuit: assigns a new pollId and records its owner.
+export circuit createPoll(newPoll: PollData): [Field] {
+    const tag = pad(32, "new poll");
+    const creatorKey = ownPublicKey();
+
+    // Safety check: creator must not be empty.
+    assert (creatorKey != default<ZswapCoinPublicKey>, "Creator cannot be empty");
+
+    // Derive a hashed identity key for the creator using their public key
+    // and their private local secret, then disclose it.
+    const ownerKey = disclose(generateHashKey(tag, creatorKey.bytes, getLocalSecret()));
+
+    // Increment global poll counter to generate new pollId.
+    pollId.increment(1);
+    const pollIdHash = disclose(generatePollIdHashKey(tag, pollId, getLocalSecret()));
+
+    // Store the poll owner’s identity hash against this pollId.
+    pollOwners.insert(pollIdHash, ownerKey);
+    // Store the poll data onchain
+    polls.insert(pollIdHash, disclose(newPoll));
+    // Save a space for poll votes
+    pollVotes.insert(pollIdHash, default<Counter>);
+    // Will need to return the pollIdHash so it can be used in other ledger states
+    return [pollIdHash];
+}
+
+// #endregion
+
+// #region Read circuits
+export circuit readPoll(pollIdHash: Field): PollData {
+  return polls.lookup(disclose(pollIdHash));
+}
+
+// #endregion
+
+// #region Helper Circuits
+
+// Generate a hashed identity key (pseudo-random identifier)
+// by hashing together two 32-byte values (typically pubkey and secret).
+export pure circuit generateHashKey(tag: Bytes<32>, pK1: Bytes<32>, pK2: Bytes<32>): Field {
+    return transientHash<[Bytes<32>, Bytes<32>, Bytes<32>]>([tag, pK1, pK2]);
+}
+
+export pure circuit generatePollIdHashKey(tag: Bytes<32>, pollId: Uint<64>, pK1: Bytes<32>): Field {
+    return transientHash<[Bytes<32>, Uint<64>, Bytes<32>]>([tag, pollId, pK1]);
+}
+
+// #endregion
