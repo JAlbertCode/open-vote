@@ -129,9 +129,15 @@ async function main() {
     }
 
     const mod = await import(pathToFileURL(contractModulePath).href)
-    // CJS module? it will sit under .default; ESM will be the module itself
     const { Contract } = (mod as any).default ?? mod
-    const contractInstance = new Contract({})
+
+    // A simple room-code secret: 32 random bytes each deploy
+    const witnesses = {
+      createPollCode: async () => new Uint8Array(randomBytes(32)), // must be a function returning Bytes<32>
+    }
+
+    console.log('witness keys:', Object.keys(witnesses)) // ["createPollCode"]
+    const contractInstance = new Contract(witnesses)
 
     // Create wallet provider for transactions
     const walletState = await Rx.firstValueFrom(wallet.state())
@@ -184,7 +190,7 @@ async function main() {
 
     const deployed = await deployContract(providers, {
       contract: contractInstance,
-      privateStateId: 'helloWorldState',
+      privateStateId: 'zkVoteV2State',
       initialPrivateState: {},
     })
 

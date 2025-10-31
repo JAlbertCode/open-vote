@@ -1,8 +1,19 @@
-import { Ledger } from './managed/zkVoteV2/contract/index.cjs'
+import {
+  Ledger,
+  Contract as ContractType,
+  Witnesses,
+} from './managed/zkVoteV2/contract/index.cjs'
 import { WitnessContext } from '@midnight-ntwrk/compact-runtime'
 
-export type PollCode = {
-  readonly pollCode: Uint8Array
+export type Contract<T, W extends Witnesses<T> = Witnesses<T>> = ContractType<
+  T,
+  W
+>
+
+export type PollCode = {}
+
+export function createPollCode(): PollCode {
+  return {}
 }
 
 export const localPollCode = (pollCode: Uint8Array) => ({
@@ -10,10 +21,14 @@ export const localPollCode = (pollCode: Uint8Array) => ({
 })
 
 export const witnesses = {
-  getLocalPollCode: ({
+  createPollCode: ({
     privateState,
-  }: WitnessContext<Ledger, PollCode>): [PollCode, Uint8Array] => [
-    privateState,
-    privateState.pollCode,
-  ],
+  }: WitnessContext<any, PollCode>): [PollCode, Uint8Array] => {
+    // Generate 32 random bytes using Math.random()
+    const randomBytes = new Uint8Array(32)
+    for (let i = 0; i < 32; i++) {
+      randomBytes[i] = Math.floor(Math.random() * 256)
+    }
+    return [privateState, randomBytes]
+  },
 }

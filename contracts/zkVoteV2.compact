@@ -69,7 +69,7 @@ export ledger rewardClaims: Map<Field, Map<Field, Map<Field, Boolean>>>;
 // #region Witnesses
 
 // Retrieve the caller’s local secret (unique to each wallet/device).
-witness getLocalPollCode(): Bytes<32>;
+witness createPollCode(): Bytes<32>;
 
 // Retrieve the caller’s shared secret (used for approvals/consent).
 // witness getSharedSecret(): Bytes<32>;
@@ -88,11 +88,11 @@ export circuit createPoll(newPoll: PollData): [Field] {
 
     // Derive a hashed identity key for the creator using their public key
     // and their private local secret, then disclose it.
-    const ownerKey = disclose(generateHashKey(tag, creatorKey.bytes, getLocalPollCode()));
+    const ownerKey = disclose(generateHashKey(tag, creatorKey.bytes, createPollCode()));
 
     // Increment global poll counter to generate new pollId.
     pollId.increment(1);
-    const pollIdHash = disclose(generatePollIdHashKey(tag, pollId, getLocalPollCode()));
+    const pollIdHash = disclose(generatePollIdHashKey(tag, pollId, createPollCode()));
 
     // Store the poll owner’s identity hash against this pollId.
     pollOwners.insert(pollIdHash, ownerKey);

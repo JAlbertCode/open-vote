@@ -1,3 +1,4 @@
 contracts/managed/
 node_modules
 dist
+midnight-level-db
