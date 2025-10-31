@@ -1,44 +1,19 @@
-import { Ledger } from "./managed/zkVote/contract/index.cjs";
-import { WitnessContext } from "@midnight-ntwrk/compact-runtime";
+import { Ledger } from './managed/zkVoteV2/contract/index.cjs'
+import { WitnessContext } from '@midnight-ntwrk/compact-runtime'
 
-export type ZkPrivateState = {
-  readonly local_secret: Uint8Array;
-  readonly shared_secret: Uint8Array;
-};
-
-export function createZkPrivateState(
-  local_secret: Uint8Array,
-  shared_secret: Uint8Array
-): ZkPrivateState {
-  return {
-    local_secret,
-    shared_secret
-  };
+export type PollCode = {
+  readonly pollCode: Uint8Array
 }
 
+export const localPollCode = (pollCode: Uint8Array) => ({
+  pollCode,
+})
+
 export const witnesses = {
-  getLocalSecret: ({
-    privateState
-  }: WitnessContext<Ledger, ZkPrivateState>): [
-    ZkPrivateState,
-    Uint8Array
-  ] => {
-    if (privateState.local_secret) {
-      return [privateState, privateState.local_secret];
-    } else {
-      throw new Error("No local secret found.");
-    }
-  },
-  getSharedSecret: ({
-    privateState
-  }: WitnessContext<Ledger, ZkPrivateState>): [
-    ZkPrivateState,
-    Uint8Array
-  ] => {
-    if (privateState.local_secret) {
-      return [privateState, privateState.shared_secret];
-    } else {
-      throw new Error("No shared secret found.");
-    }
-  }
-};
+  getLocalPollCode: ({
+    privateState,
+  }: WitnessContext<Ledger, PollCode>): [PollCode, Uint8Array] => [
+    privateState,
+    privateState.pollCode,
+  ],
+}
