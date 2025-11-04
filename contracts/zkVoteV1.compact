@@ -43,9 +43,6 @@ export ledger rewardClaims: Map<Uint<64>, Map<Uint<64>, Map<Field, Boolean>>>;
 
 // #region Witnesses
 
-// Room code secret
-witness createPollCode(): Bytes<32>;
-
 // #endregion
 
 // #region Write circuits
@@ -61,7 +58,7 @@ export circuit createPoll(pollCode: Bytes<16>): [] {
 
     // Derive a hashed identity key for the creator using their public key
     // and their private local secret, then disclose it.
-    const creatorHashKey = disclose(generateHashKey(tag,creatorKey.bytes, createPollCode()));
+    const creatorHashKey = disclose(generateHashKey(tag, creatorKey.bytes));
 
     const pollIdHash = disclose(pollKeyFromCode(tag, pollCode));
 
@@ -177,8 +174,8 @@ export circuit optionRead(pollIdHash: Field, questionIdHash: Field, optionIdHash
 
 // Generate a hashed identity key (pseudo-random identifier)
 // by hashing together two 32-byte values (typically pubkey and secret).
-export pure circuit generateHashKey(tag: Bytes<32>, pK1: Bytes<32>, pK2: Bytes<32>): Field {
-    return transientHash<[Bytes<32>, Bytes<32>, Bytes<32>]>([tag, pK1, pK2]);
+export pure circuit generateHashKey(tag: Bytes<32>, pK1: Bytes<32>): Field {
+    return transientHash<[Bytes<32>, Bytes<32>]>([tag, pK1]);
 }
 
 export pure circuit generatePollIdHashKey(tag: Bytes<32>, pollId: Uint<64>, pK1: Bytes<32>): Field {
