@@ -43,30 +43,30 @@ export ledger rewardClaims: Map<Uint<64>, Map<Uint<64>, Map<Field, Boolean>>>;
 
 // #region Witnesses
 
-// Retrieve the caller’s local secret (unique to each wallet/device).
-witness getLocalSecret(): Bytes<32>;
-
-// Retrieve the caller’s shared secret (used for approvals/consent).
-witness getSharedSecret(): Bytes<32>;
+// Room code secret
+witness createPollCode(): Bytes<32>;
 
 // #endregion
 
 // #region Write circuits
 // Create poll circuit: assigns a new pollId and records its owner.
-export circuit createPoll(): [] {
+export circuit createPoll(pollCode: Bytes<16>): [] {
     const tag = pad(32, "new poll");
     const creatorKey = ownPublicKey();
 
     // Safety check: creator must not be empty.
     assert (creatorKey != default<ZswapCoinPublicKey>, "Creator cannot be empty");
+    // Check that the poll code is not empty.
+    assert (pollCode != default<Bytes<16>>, "Poll code cannot be empty");
 
     // Derive a hashed identity key for the creator using their public key
     // and their private local secret, then disclose it.
-    const creatorHashKey = disclose(generateHashKey(tag,creatorKey.bytes, getLocalSecret()));
+    const creatorHashKey = disclose(generateHashKey(tag,creatorKey.bytes, createPollCode()));
+
+    const pollIdHash = disclose(pollKeyFromCode(tag, pollCode));
 
     // Increment global poll counter to generate new pollId.
     pollId.increment(1);
-    const pollIdHash = disclose(generatePollIdHashKey(tag, pollId, getLocalSecret()));
 
     // Store the poll owner’s identity hash against this pollId.
     pollOwners.insert(pollIdHash, creatorHashKey);
@@ -82,7 +82,7 @@ export circuit createQuestion(pollIdHash: Field, question: Bytes<250>): [] {
     assert(pollIdHash != default<Field>, "Poll ID cannot be empty");
     assert(question != default<Bytes<250>>, "Question cannot be empty");
 
-    const questionIdHash = disclose(generateQuestionIdHashKey(tag, question, pollIdHash, getLocalSecret()));
+    const questionIdHash = disclose(generateQuestionIdHashKey(tag, question, pollIdHash));
     const pubPollId = disclose(pollIdHash);
 
     //Insert questions into the ledger by first creating a record with the pollIdHash
@@ -104,7 +104,7 @@ export circuit createOption(pollIdHash: Field, questionIdHash: Field, option: By
     assert(option != default<Bytes<100>>, "Option cannot be empty");
     
     // Create the option Id.
-    const optionIdHash = disclose(generateOptionIdHashKey(tag, option, questionIdHash, getLocalSecret()));
+    const optionIdHash = disclose(generateOptionIdHashKey(tag, option, questionIdHash));
     // Insert the option Id and the text of the option into the map.
     options.lookup(pollIdHash).lookup(questionIdHash).insert(optionIdHash, disclose(option));
     // Increment the counter to document the question has another available option.
@@ -127,23 +127,22 @@ export circuit submitVote(pollIdHash: Field, questionIdHash: Field, optionIdHash
 
 // #region Data structures for reading onchain data.
 
-struct PollData {
-    pollIdHash: Field, 
-}
+// struct PollData {
+//     pollIdHash: Field, 
+// }
 
-struct QuestionData {
-    pollIdHash: Field,
-    questionIdHash: Field,
-    question: Bytes<250>
-}
+// struct QuestionData {
+//     pollIdHash: Field,
+//     questionIdHash: Field,
+//     question: Bytes<250>
+// }
 
-struct OptionData {
-    pollIdHash: Field,
-    questionIdHash: Field,
-    optionIdHash: Field,
-    option: Bytes<100>
-    
-}
+// struct OptionData {
+//     pollIdHash: Field,
+//     questionIdHash: Field,
+//     optionIdHash: Field,
+//     option: Bytes<100>   
+// }
 
 // #endregion
 
@@ -186,12 +185,17 @@ export pure circuit generatePollIdHashKey(tag: Bytes<32>, pollId: Uint<64>, pK1:
     return transientHash<[Bytes<32>, Uint<64>, Bytes<32>]>([tag, pollId, pK1]);
 }
 
-export pure circuit generateQuestionIdHashKey(tag: Bytes<32>, question: Bytes<250>, pollIdHash: Field, pK1: Bytes<32>): Field {
-    return transientHash<[Bytes<32>, Bytes<250>, Field, Bytes<32>]>([tag, question, pollIdHash, pK1]);
+export pure circuit generateQuestionIdHashKey(tag: Bytes<32>, question: Bytes<250>, pollIdHash: Field): Field {
+    return transientHash<[Bytes<32>, Bytes<250>, Field]>([tag, question, pollIdHash]);
 }
 
-export pure circuit generateOptionIdHashKey(tag: Bytes<32>, option: Bytes<100>, questionIdHash: Field, pK1: Bytes<32>): Field {
-    return transientHash<[Bytes<32>, Bytes<100>, Field, Bytes<32>]>([tag, option, questionIdHash, pK1]);
+export pure circuit generateOptionIdHashKey(tag: Bytes<32>, option: Bytes<100>, questionIdHash: Field): Field {
+    return transientHash<[Bytes<32>, Bytes<100>, Field]>([tag, option, questionIdHash]);
+}
+
+// Bytes<16> fits "XXXX-XXXX" for the poll code.
+export pure circuit pollKeyFromCode(tag: Bytes<32>, roomCode: Bytes<16>): Field {
+    return transientHash<[Bytes<32>, Bytes<16>]>([tag, roomCode]);
 }
 
 // #endregion

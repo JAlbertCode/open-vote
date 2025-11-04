@@ -118,7 +118,7 @@ async function main() {
     const contractModulePath = path.join(
       contractPath,
       'managed',
-      'zkVoteV2',
+      'zkVoteV1',
       'contract',
       'index.cjs'
     )
@@ -170,10 +170,10 @@ async function main() {
 
     // Configure all required providers
     console.log('Setting up providers...')
-    const zkConfigPath = path.join(contractPath, 'managed', 'zkVoteV2')
+    const zkConfigPath = path.join(contractPath, 'managed', 'zkVoteV1')
     const providers = {
       privateStateProvider: levelPrivateStateProvider({
-        privateStateStoreName: 'zkVoteV2-state',
+        privateStateStoreName: 'zkVoteV1-state',
       }),
       publicDataProvider: indexerPublicDataProvider(
         TESTNET_CONFIG.indexer,
@@ -190,7 +190,7 @@ async function main() {
 
     const deployed = await deployContract(providers, {
       contract: contractInstance,
-      privateStateId: 'zkVoteV2State',
+      privateStateId: 'zkVoteV1State',
       initialPrivateState: {},
     })
 
