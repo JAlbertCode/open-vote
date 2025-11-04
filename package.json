@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "compile": "compact compile contracts/zkVoteV2.compact contracts/managed/zkVoteV2",
+    "compile": "compact compile contracts/zkVoteV1.compact contracts/managed/zkVoteV1 && compact compile contracts/zkVoteV2.compact contracts/managed/zkVoteV2",
     "build": "tsc",
     "deploy": "node dist/deploy.js"
   },
