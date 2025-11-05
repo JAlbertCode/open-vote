@@ -54,11 +54,21 @@ Run the contract simulation tests:
 npm run test
 ```
 
-This executes the Jest test suite located in:
-
+This executes the test suite located in:
+```bash
 src/test/
+```
 
 You’ll see output verifying circuit logic, question/option creation, and vote submission behavior.
+
+## Start the Proof Server
+
+Before deploying or interacting with the contract, start the proof server in Docker:
+```bash
+docker run -p 6300:6300 midnightnetwork/proof-server -- 'midnight-proof-server --network testnet'
+```
+
+This runs the proof server locally on port 6300, which is required for proving and verifying Compact transactions.
 
 ## Deploy
 

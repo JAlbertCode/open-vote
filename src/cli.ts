@@ -33,7 +33,7 @@ const TESTNET_CONFIG = {
   proofServer: "http://127.0.0.1:6300"
 };
 
-// ---------- helpers ----------
+// #region Helpers 
 const encoder = new TextEncoder();
 
 function bytes16(text: string): Uint8Array {
@@ -105,7 +105,9 @@ function startSpinner(message: string) {
     }
   }
 
-// ---------- main ----------
+//#endregion
+
+// #region Main
 async function main() {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
   process.on("SIGINT", () => {
@@ -250,5 +252,7 @@ async function main() {
     process.stdin.pause();
   }
 }
+
+// #endregion
 
 main().catch(console.error);
