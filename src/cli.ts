@@ -77,6 +77,34 @@ function printTxInfo(tx: any) {
   console.log(`Transaction id:   ${idHex}\n`);
 }
 
+function startSpinner(message: string) {
+    const frames = ["🕛","🕐","🕑","🕒","🕓","🕔",
+    "🕕","🕖","🕗","🕘","🕙","🕚"];
+    let i = 0;
+    process.stdout.write(`${message} ${frames[i]}`);
+    const id = setInterval(() => {
+      i = (i + 1) % frames.length;
+      process.stdout.write(`\r${message} ${frames[i]}`);
+    }, 80);
+    return () => {
+      clearInterval(id);
+      process.stdout.write(`\r${message} ✅\n`);
+    };
+  }
+
+  async function withSpinner<T>(message: string, work: () => Promise<T>): Promise<T> {
+    const stop = startSpinner(message);
+    try {
+      const result = await work();
+      stop();
+      return result;
+    } catch (err) {
+      clearInterval((stop as any).id);
+      process.stdout.write(`\r${message} ✗\n`);
+      throw err;
+    }
+  }
+
 // ---------- main ----------
 async function main() {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
@@ -189,10 +217,14 @@ async function main() {
           // auto-generate poll code and call createPoll
           const pollCodeHuman = generatePollCode();
           console.log(`\nYour poll code: ${pollCodeHuman}`);
-          console.log("Share this code with respondents. (Fits Bytes<16>)");
+          console.log("Share this code with respondents.");
 
           try {
-            const tx = await deployed.callTx.createPoll(bytes16(pollCodeHuman));
+            // shows progress while the tx is built, proved, submitted
+            const tx = await withSpinner("Creating poll onchain", () =>
+                deployed.callTx.createPoll(bytes16(pollCodeHuman))
+            );
+        
             console.log("Poll created successfully!");
             printTxInfo(tx);
           } catch (err) {
