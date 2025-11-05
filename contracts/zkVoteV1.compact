@@ -67,7 +67,7 @@ export circuit createPoll(pollCode: Bytes<16>): [] {
 
     // Store the poll owner’s identity hash against this pollId.
     pollOwners.insert(pollIdHash, creatorHashKey);
-    // Instantiating a spot for the first question.
+
     questionsInPoll.insert(pollIdHash, default<Counter>);
 }
 
@@ -82,13 +82,19 @@ export circuit createQuestion(pollIdHash: Field, question: Bytes<250>): [] {
     const questionIdHash = disclose(generateQuestionIdHashKey(tag, question, pollIdHash));
     const pubPollId = disclose(pollIdHash);
 
+    if (!questions.member(pubPollId)) {
     //Insert questions into the ledger by first creating a record with the pollIdHash
     questions.insert(pubPollId, default<Map<Field, Bytes<250>>>);
+    }
     //Next look up the pollIdHash that we just inserted and insert the question hash and question text into the map.
     questions.lookup(pubPollId).insert(questionIdHash, disclose(question));
-    // Increase the counter for the questions in the poll
-    const questionCount = questionsInPoll.lookup(pollIdHash).read();
-    questionsInPoll.lookup(pollIdHash).increment(1);
+
+    if (!questionsInPoll.member(pubPollId)) {
+        // Instantiating a spot for the first question.
+        questionsInPoll.insert(pubPollId, default<Counter>);    
+    }
+        // Increase the counter for the questions in the poll
+    questionsInPoll.lookup(pubPollId).increment(1);
 }
 
 export circuit createOption(pollIdHash: Field, questionIdHash: Field, option: Bytes<100>): [] {
@@ -100,12 +106,26 @@ export circuit createOption(pollIdHash: Field, questionIdHash: Field, option: By
     assert(questionIdHash != default<Field>, "Question ID cannot be empty");
     assert(option != default<Bytes<100>>, "Option cannot be empty");
     
+    const pubPollId = disclose(pollIdHash);
+    const pubQuestionId = disclose(questionIdHash);
+    const pubOption = disclose(option);
+
     // Create the option Id.
-    const optionIdHash = disclose(generateOptionIdHashKey(tag, option, questionIdHash));
+    const optionIdHash = generateOptionIdHashKey(tag, pubOption, pubQuestionId);
+
+    if (!options.member(pubPollId)) {
+        
+        options.insert(pubPollId, default<Map<Field, Map<Field, Bytes<100>>>>);
+        options.lookup(pubPollId).insert(pubQuestionId, default<Map<Field, Bytes<100>>>);
+        
+    }
     // Insert the option Id and the text of the option into the map.
-    options.lookup(pollIdHash).lookup(questionIdHash).insert(optionIdHash, disclose(option));
+    options.lookup(pubPollId).lookup(pubQuestionId).insert(optionIdHash, pubOption);
     // Increment the counter to document the question has another available option.
-    optionsInQuestions.lookup(questionIdHash).increment(1);
+    if (!optionsInQuestions.member(pubQuestionId)) {
+        optionsInQuestions.insert(pubQuestionId, default<Counter>);
+    }
+    optionsInQuestions.lookup(pubQuestionId).increment(1);
 }
 
 export circuit submitVote(pollIdHash: Field, questionIdHash: Field, optionIdHash: Field): [] {
@@ -113,11 +133,31 @@ export circuit submitVote(pollIdHash: Field, questionIdHash: Field, optionIdHash
     const voterKey = ownPublicKey();
 
     assert(voterKey != default<ZswapCoinPublicKey>, "Voter Id cannot be empty");
+    assert(pollIdHash != default<Field>, "Question hash cannot be empty");
+    assert(questionIdHash != default<Field>, "Question hash cannot be empty");
+    assert(optionIdHash != default<Field>, "Option hash cannot be empty");
 
+    const pubPollId = disclose(pollIdHash);
+    const pubQuestionId = disclose(questionIdHash);
+    const pubOptionId = disclose(optionIdHash);
+
+    if (!questionVotesRecieved.member(pubPollId)) {
+        questionVotesRecieved.insert(pubPollId, default<Map<Field, Counter>>);
+        questionVotesRecieved.lookup(pubPollId).insert(pubQuestionId, default<Counter>);
+    }
     // Noting that another user answered this question.
-    questionVotesRecieved.lookup(disclose(pollIdHash)).lookup(disclose(questionIdHash)).increment(1);
+    questionVotesRecieved.lookup(pubPollId).lookup(pubQuestionId).increment(1);
+
+        // Map of pollId → questionId → optionId → number of votes received.
+        // export ledger optionVotesReceived:   Map<Field, Map<Field, Map<Field, Counter>>>;
+
+    if (!optionVotesReceived.member(pubPollId)) {
+        optionVotesReceived.insert(pubPollId, default<Map<Field, Map<Field, Counter>>>);
+        optionVotesReceived.lookup(pubPollId).insert(pubQuestionId,default<Map<Field, Counter>>);
+        optionVotesReceived.lookup(pubPollId).lookup(pubQuestionId).insert(pubOptionId, default<Counter>);
+    }
     // Noting that this option was selected for a specific poll and question.
-    optionVotesReceived.lookup(disclose(pollIdHash)).lookup(disclose(questionIdHash)).lookup(disclose(optionIdHash)).increment(1);
+    optionVotesReceived.lookup(pubPollId).lookup(pubQuestionId).lookup(pubOptionId).increment(1);
 }
 
 // #endregion
@@ -154,6 +194,7 @@ export circuit questionCount(pollIdHash: Field): Uint<64> {
 
 export circuit questionRead(pollIdHash: Field, questionIdHash: Field): Bytes<250> {
     assert (pollIdHash != default<Field>, "Poll Id cannot be empty");
+    assert (questionIdHash != default<Field>, "Question Id cannot be empty");
 
     const question = questions.lookup(disclose(pollIdHash)).lookup(disclose(questionIdHash));
     return question;
