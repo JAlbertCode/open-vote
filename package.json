@@ -7,7 +7,8 @@
     "test": "vitest",
     "compile": "compact compile contracts/zkVoteV1.compact contracts/managed/zkVoteV1",
     "build": "tsc",
-    "deploy": "node dist/deploy.js"
+    "deploy": "node dist/deploy.js",
+    "cli": "node dist/cli.js"
   },
   "keywords": [],
   "author": "",
