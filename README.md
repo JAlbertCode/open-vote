@@ -47,6 +47,18 @@ Build artifacts are written to:
 ```bash
 dist/
 ```
+## Test
+
+Run the contract simulation tests:
+```bash
+npm run test
+```
+
+This executes the Jest test suite located in:
+
+src/test/
+
+You’ll see output verifying circuit logic, question/option creation, and vote submission behavior.
 
 ## Deploy
 
@@ -58,4 +70,16 @@ npm run deploy
 This runs:
 ```bash
 node dist/deploy.js
+```
+
+## Command-Line Interface (CLI)
+
+Interact with the deployed contract directly from the terminal:
+```bash
+npm run cli
+```
+
+This runs:
+```bash
+node dist/cli.js
 ```
