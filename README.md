@@ -33,7 +33,7 @@ npm run compile
 
 Outputs to:
 ```bash
-contracts/managed/zkVoteV2/
+contracts/managed/zkVoteV1/
 ```
 
 ## Build
